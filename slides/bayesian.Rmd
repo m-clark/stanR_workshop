@@ -1,0 +1,585 @@
+---
+title: "Become a Bayesian in <br> 10 minutes"
+output: 
+  revealjs::revealjs_presentation:
+    theme: dark
+    transition: slide
+    incremental: true
+    center: true
+css: slides_light.css
+    
+---
+
+## Follow along
+
+[m-clark.github.io/workshops/bayesian](https://m-clark.github.io/workshops/bayesian)
+
+
+
+## {data-transition="fade" data-transitionSpeed="fast"}
+
+$$ p(\mathrm{hypothesis}|\mathrm{data}) = \frac{p(\mathrm{data}|\mathrm{hypothesis})p(\mathrm{hypothesis})}{p(\mathrm{data})} $$
+
+
+
+## {data-transition="fade" data-transitionSpeed="fast"}
+
+$$ \mathrm{posterior} \propto \mathrm{data} * \mathrm{prior}$$
+
+
+
+## Distributions
+
+The goal is a *distribution* for a parameter (stable)... 
+
+rather than a single parameter estimate
+
+
+
+
+## <span style="color:#F8766D">Prior</span>
+
+Represents our intution regarding the intial state of affairs
+
+Based on:
+
+<p class="fragment emph" style="font-size:125%">Prior belief</p>
+
+<p class="fragment emph" style="font-size:125%">Prior research</p>
+
+<p class="fragment emph" style="font-size:125%">Known approaches that work well in the modeling context</p>
+
+
+
+
+## The prior is subjective?!?
+
+## Subjective != Arbitrary {data-transition="slide-in none-out"}
+
+## For example... {data-transition="none"}
+
+## Subjective {data-transition="zoom"}
+
+<div style="text-align:center"><span class="" style="font-size:110%; font-variant:small-caps">Choosing a normal distribution for the likelihood</span></div>
+
+
+## Subjective {data-transition="zoom"}
+
+<div style="text-align:center"><span class="" style="font-size:110%; font-variant:small-caps">Setting a prior variance to some value</span></div>
+
+
+## Arbitrary {data-transition="zoom"}
+
+<div style="text-align:center"><span class="" style="font-size:110%; font-variant:small-caps">Setting your null hypothesis parameter value to 0</span></div>
+
+
+## Arbitrary  {data-transition="zoom"}
+
+<div style="text-align:center"><span class="" style="font-size:110%; font-variant:small-caps">Choosing .05 as a cutoff for 'significance'</span></div>
+
+
+## <span style="color:#00BA38">Likelihood</span>
+
+
+<div style="text-align:center">Same as you've used in traditional approaches</div>
+
+
+## <span style="color:#619CFF">Posterior</span>
+
+
+<div style="text-align:center">A weighted combination of the prior and likelihood</div>
+
+<!-- <img src="../img/priorLikePosterior_test1.png" style="display:block; margin: 0 auto;"> -->
+
+```{r echo=F, message=FALSE, warning=FALSE}
+library(tidyverse); library(plotly)
+input = data.frame(n=10, dataMean=7, dataVar=3, priorMean=3, priorVar=1)
+simN = 500
+theta = seq(0, 10, length.out = simN)
+obs  = rnorm(input$n, input$dataMean, sqrt(input$dataVar))
+prior = data.frame(Distribution='Prior', theta=theta,
+                   density = dnorm(theta, input$priorMean, sqrt(input$priorVar))) %>%
+  mutate(density=density/sum(density))
+
+like = data.frame(Distribution='Likelihood', theta=theta,
+                  density = sapply(theta, function(parm) exp(sum(dnorm(obs, mean=parm, sd=sqrt(input$dataVar), log = T))))) %>%
+  mutate(density=density/sum(density))
+
+denom = sum(like$density*prior$density)
+post = data.frame(Distribution='Posterior', theta=theta,
+                  density = like$density*prior$density/denom) %>%
+  mutate(density=density/sum(density))
+
+thetamean = sum(post$density*theta)
+plotdata = rbind(prior, like, post)
+
+
+g = ggplot(aes(x=theta, y=density, group=Distribution, color=Distribution, fill=Distribution), data=plotdata) +
+  geom_ribbon(aes(ymin=0, ymax=density), alpha=.5 ) +
+  geom_point(aes(x=value, y=0), data=data.frame(Distribution=c('Prior', 'Likelihood', 'Posterior'),
+                                                value=c(input$priorMean, mean(obs), thetamean)),
+             color=alpha('#ff5503', .25)) +
+  # facet_wrap(~Distribution, scales = 'free_y', ncol = 1) +
+  xlab('') +# xlab(HTML('\\(\\theta\\)')) + # between shiny plotly and the web, it just don't work
+  lims(x=c(0, 10)) +
+  lazerhawk::theme_trueMinimal() +
+  theme(axis.title.x=element_text(color=alpha('black',.6), vjust=.1, hjust=.5),
+        axis.text.y=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        strip.text=element_text(color=alpha('black',.5), vjust=.01),
+        legend.position='none',
+        plot.background=element_rect(fill = "transparent",colour = NA))
+
+ggplotly(g, tooltip='none') %>%
+  config(displayModeBar=F, sendData = F, displaylogo=F, collaborate=F,     # few of these work as advertiseed
+         modeBarButtonsToRemove=list('lasso2d', 'hoverCompareCartesian', 'hoverClosestCartesian')) %>%
+  layout(paper_bgcolor=rgb(0,0,0,0), plot_bgcolor=rgb(0,0,0,0))
+```
+
+## Perks: Probabilities
+
+Which interpretation do you prefer?
+
+> <p class="fragment"> If I asssume a value of zero for the parameter, what is the probability of my observed parameter or more extreme?</p>
+
+Or
+
+> <p class="fragment">What's the probability my result is greater than zero?</p>
+
+
+## Perks: Intervals
+
+Which interpretation do you prefer?
+
+> <p class="fragment"> If I repeat this study precisely an infinite number of times, and I calculate a P% interval each time, then P% of those  intervals will contain the true parameter. Here is one of those intervals.</p>
+
+Or
+
+> <p class="fragment"> The probability the parameter falls in *this* interval is P.</p>
+
+
+## Perks
+
+<p class="fragment">Intuitive results</p>
+<p class="fragment">Auto-regularization</p>
+
+- Guards against overfitting
+
+<p class="fragment">Intervals for anything you can calculate</p>
+
+
+
+
+
+## Which of the following is R code for <br> the Bayesian model? {data-transition="none"}
+
+```{r eval=FALSE}
+(mpg ~ wt, data=mtcars)
+(mpg ~ wt, data=mtcars)
+(mpg ~ wt, data=mtcars)
+```
+
+## Which of the following is R code for <br> the Bayesian model? {data-transition="none"}
+
+```{r eval=FALSE}
+lm(mpg ~ wt, data=mtcars)
+(mpg ~ wt, data=mtcars)
+(mpg ~ wt, data=mtcars)
+```
+
+## Which of the following is R code for <br> the Bayesian model? {data-transition="none"}
+
+```{r eval=FALSE}
+lm(mpg ~ wt, data=mtcars)
+stan_lm(mpg ~ wt, data=mtcars)   # rstanarm
+(mpg ~ wt, data=mtcars)
+```
+
+## Which of the following is R code for <br> the Bayesian model? {data-transition="none"}
+
+```{r eval=FALSE}
+lm(mpg ~ wt, data=mtcars)
+stan_lm(mpg ~ wt, data=mtcars)   # rstanarm
+brm(mpg ~ wt, data=mtcars)       # brms
+```
+
+## Logistic Regression {data-transition="none"}
+
+```{r eval=FALSE}
+glm(treat ~ educ + black + hisp + married, data=lalonde, family='binomial')
+stan_glm(treat ~ educ + black + hisp + married, data=lalonde, family='binomial')   # rstanarm
+brm(treat ~ educ + black + hisp + married, data=lalonde, family='binomial')        # brms
+```
+
+
+## Ordinal Regression {data-transition="none"}
+
+```{r eval=FALSE}
+clm(rating ~ temp*contact, data = wine)                       # ordinal
+stan_polr(rating ~ temp*contact, data = wine)                 # rstanarm
+brm(rating ~ temp*contact, data = wine, family='ordinal')     # brms
+```
+
+
+## Mixed Model {data-transition="none"}
+
+```{r eval=FALSE}
+lmer(Reaction ~ Days + (1 + Days|Subject))        # lme4
+stan_lmer(Reaction ~ Days + (1 + Days|Subject))   # rstanarm
+brm(Reaction ~ Days + (1 + Days|Subject))         # brms
+```
+
+## The Point 
+
+## {data-transition="zoom"  data-autoslide="2000"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="2000" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+
+<!-- ##  -->
+<!-- <div class="fragment fade-up" data-autoslide="3000" ><img src="../img/rstan.png" style="display:block; margin: 0 auto;"></div> -->
+
+
+
+<!-- ##  {data-transition="zoom" data-autoslide="2000" } -->
+
+<!-- <p class='fragment fade-up' style="text-align:center;"><img src="../img/rstan.png" style="display:block; margin: 0 auto;"></p> -->
+
+
+## {data-transition="zoom" data-autoslide="10000"}
+
+<style type="text/css">
+
+
+#marqueecontainer{
+position: relative;
+width: 1000px; /*marquee width */
+height: 1000px; /*marquee height */
+background-color: inherit;
+overflow: hidden;
+border: 0px solid orange;
+/*padding: 2px;
+padding-left: 4px;*/
+}
+
+</style>
+
+<script type="text/javascript">
+
+var delayb4scroll=00 //Specify initial delay before marquee starts to scroll ***TAKES SOME PLAYING WITH***
+var marqueespeed=5 //Specify marquee scroll speed (larger is faster 1-10)
+var pauseit=0 //Pause marquee onMousever (0=no. 1=yes)?
+
+////NO NEED TO EDIT BELOW THIS LINE////////////
+
+var copyspeed=marqueespeed
+var pausespeed=(pauseit==0)? copyspeed: 0
+var actualheight=''
+
+function scrollmarquee(){
+if (parseInt(cross_marquee.style.top)>(actualheight*(-1)+8)) //if scroller hasn't reached the end of its height
+cross_marquee.style.top=parseInt(cross_marquee.style.top)-copyspeed+"px" //move scroller upwards
+else //else, reset to original position
+cross_marquee.style.top=parseInt(marqueeheight)+8+"px"
+}
+
+function initializemarquee(){
+cross_marquee=document.getElementById("vmarquee")
+cross_marquee.style.top=0
+marqueeheight=document.getElementById("marqueecontainer").offsetHeight
+actualheight=cross_marquee.offsetHeight //height of marquee content (much of which is hidden from view)
+if (window.opera || navigator.userAgent.indexOf("Netscape/7")!=-1){ //if Opera or Netscape 7x, add scrollbars to scroll and exit
+cross_marquee.style.height=marqueeheight+"px"
+cross_marquee.style.overflow="scroll"
+return
+}
+setTimeout('lefttime=setInterval("scrollmarquee()",30)', delayb4scroll)
+}
+
+if (window.addEventListener)
+window.addEventListener("load", initializemarquee, false)
+else if (window.attachEvent)
+window.attachEvent("onload", initializemarquee)
+else if (document.getElementById)
+window.onload=initializemarquee
+
+
+</script>
+<div id="marqueecontainer" onMouseover="copyspeed=pausespeed" onMouseout="copyspeed=marqueespeed">
+<div id="vmarquee" style="position: absolute; width: 98%;">
+
+
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+</br>
+
+<img src="../img/rstan.png" style="display:block; margin: 0 auto;">
+
+</div>
+</div>
+
+
+## {data}
+
+<div style="text-align:center; font-size:95%">RStan and associated packages make it easy to be a Bayesian</div>
+
+<img src="../img/r_stan.png" style="display:block; margin: 0 auto;">
+
+
+## Things you'll need <br> to learn
+
+Settings
+
+Debugging
+
+Diagnostics
+
+Model comparison
+
+
+## Issues
+
+Big data
+
+Very complex models
+
+
+
+## Indoctrination commencing... {data-transition="zoom"  data-autoslide="3000"}
+
+## Hold please... {data-transition="zoom"  data-autoslide="3000"}
+
+## {data-transition="zoom"  data-autoslide="3000"}
+
+
+<!-- <script type="text/javascript"> -->
+<!-- var audio = new Audio('http://www3.nd.edu/~sberry5/electricGroove.mp3'); -->
+<!-- audio.play(); -->
+<!-- </script> -->
+
+
+
+<!-- <section> -->
+<!--   <audio data-autoplay src="C:\Users\MC\Music\Amazon MP3\Com Truise\Galactic Melt\01-09- Ether Drift.mp3"></audio> -->
+<!-- </section> -->
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="3000" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="2000"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="2000" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="1000"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="1000" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="500"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="500" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+
+## {data-transition="zoom"  data-autoslide="250"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="250" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+
+
+
+
+
+
+
+
+
+
+<!-- subliminal here -->
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/cat.jpg" style="display:block; margin: 0 auto;">
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/lamborghini.jpg" style="display:block; margin: 0 auto;">
+
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/puppy.jpg" style="display:block; margin: 0 auto;">
+
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/money.jpg" style="display:block; margin: 0 auto;">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/bob.jpg" style="display:block; margin: 0 auto;">
+
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/homer.jpg" style="display:block; margin: 0 auto;">
+
+
+
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/spock.jpg" style="display:block; margin: 0 auto;">
+
+
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/flower.jpg" style="display:block; margin: 0 auto;">
+
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/flexible.png" style="display:block; margin: 0 auto;">
+
+
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../../img/Rlogo.png" style="display:block; margin: 0 auto;">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/smile.png" style="display:block; margin: 0 auto;">
+
+
+
+##  {data-transition="zoom" data-autoslide="125" }
+
+<img src="../../img/stan_logo.png" style="display:block; margin: 0 auto; width:70%">
+
+## {data-transition="zoom"  data-autoslide="125"}
+
+<img src="../img/hearts.png" style="display:block; margin: 0 auto;">
+
+
+
+## {data-transition="zoom" data-background="../img/sunshine.jpg"  data-autoslide="3000"}
+
+<img src="../img/r_and_stan.png" style="display:block; margin: 0 auto;">
+
+<div style="text-align:center; font-size:200%">Bayesian Bliss</div>
+
+
+
+## Join Now! {data-transition="zoom" data-autoslide="3000" }
+
+<p class='fragment fade-up' style="text-align:center; font-size:200%"> Can you do any less?!</p>
+
+
+## Go and do likewise!

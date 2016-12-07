@@ -1,0 +1,1144 @@
+\documentclass[]{book}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Become a Bayesian with R \& Stan},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{natbib}
+\bibliographystyle{apalike}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\ImportTok}[1]{{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{{#1}}}}
+\newcommand{\BuiltInTok}[1]{{#1}}
+\newcommand{\ExtensionTok}[1]{{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{{#1}}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{{#1}}}}
+\newcommand{\NormalTok}[1]{{#1}}
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+  \title{{Become a Bayesian with R \& Stan}}
+  \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \author{{Michael Clark} {Statistician Lead}}
+  \preauthor{\centering\large\emph}
+  \postauthor{\par}
+  \predate{\centering\large\emph}
+  \postdate{\par}
+  \date{2016-11-17}
+
+\usepackage{booktabs}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{1}
+\tableofcontents
+}
+\chapter{\texorpdfstring{{Home}}{Home}}\label{home}
+
+\chapter{Introduction}\label{introduction}
+
+\newthought{Statistical modeling is a thoughtful exercise.} Bayesian
+approaches allow for us to put even more thought into the standard
+modeling approach, to explore our models more deeply, and may enable a
+better understanding of the uncertainty therein. This document (and
+related talk\footnote{The associated talk was not a hands-on workshop.})
+has a primary purpose of providing an introduction to tools within R
+that can be used for Bayesian data analysis, and an introduction to the
+Stan programming language they depend on. It is not an introduction to
+Bayesian inference (see the {[}references section{]}{[}References{]} and
+\href{http://m-clark.github.io/docs/IntroBayes.html}{my intro}), nor an
+introduction to statistical modeling in R. However, some introductory
+concepts will be presented for those who may be new to Bayesian data
+analysis.
+
+A few points that serve to illustrate the perspective taken here:
+
+\begin{itemize}
+\item
+  In this day and age, there is no more need to justify the use of a
+  Bayesian approach than there is a traditional one. In fact, if one is
+  using the standard null hypothesis testing approach, they may need to
+  justify that much more so. The Bayesian approach may be new to you,
+  but its concepts are very old, and the techniques are widely used
+  across many disciplines.
+\item
+  Proselytizing is not a goal here, the only zealotry is perhaps for R
+  and Stan as useful tools. Bayesian approaches are still too cumbersome
+  in some settings (e.g.~with very large data), and I have no problem
+  using more pragmatic tools.
+\item
+  Details will be glossed over. If one has prior exposure to Bayesian
+  data analysis, this can simply be used to learn a couple tools
+  quickly. For those new to the Bayesian approach, you will only get a
+  glimpse of what is to come.
+\end{itemize}
+
+\section{Outline}\label{outline}
+
+This document will provide a basic introduction to the probabilistic
+programming language Stan, specifically focusing on its usage via R. A
+very brief overview of the Bayesian modeling approach will be provided
+as a starting point, followed by a description of the Stan language and
+the constituent parts of a Stan model. Three package implementations
+available in R will then be demonstrated- {rstan}, {rstanarm}, and
+{brms}.
+
+\begin{itemize}
+\tightlist
+\item
+  Become a Bayesian in 10 minutes
+\item
+  Key concepts
+\item
+  The Stan Modeling Language
+\item
+  R package demonstrations
+\item
+  Model Extension demonstrations
+\end{itemize}
+
+\hypertarget{prerequisites}{\section*{Prerequisites}\label{prerequisites}}
+\addcontentsline{toc}{section}{Prerequisites}
+
+As far as statistical modeling goes, no more than a standard exposure to
+regression is assumed. You would do a lot better knowing the basics of
+maximum likelihood estimation as well. As for R, you should be able to
+run basic lm/glm models in that environment.
+
+Color coding:
+
+\begin{itemize}
+\tightlist
+\item
+  {emphasis}
+\item
+  {package}
+\item
+  {function}
+\item
+  {object/class}
+\item
+  \protect\hyperlink{prerequisites}{link}
+\end{itemize}
+
+\chapter{Key Concepts}\label{key-concepts}
+
+This section focuses on some key ideas to help you quickly get into the
+Bayesian mindset. Again, very little statistical knowledge is assumed.
+If you have prior experience with the Bayesian approach it may be
+skipped.
+
+\section{Distributions}\label{distributions}
+
+One of the first things to get used to coming from a traditional
+framework is that the focus is on distributions of parameters rather
+than single estimates of them. In the Bayesian context, parameters are
+{\emph{random}}, not fixed. Your analysis will start with one
+distribution, the {prior}, and end with another, the {posterior}. The
+summaries of that distribution, e.g.~the mean, standard deviation, etc.
+will be available, and thus be used to understand the parameters in
+similar fashion as the traditional approach.
+
+As an example, if you want to estimate a regression coefficient, the
+Bayesian analysis will result in hundreds to thousands of values from
+the distribution for that coefficient. You can then use those values to
+obtain their mean, or use the quantiles to provide an interval estimate,
+and thus end up with the same type of information.
+
+Consider the following example. We obtain a 1000 draws from a normal
+distribution with mean 5 and standard deviation of 2. From those values
+we can get the mean or an interval estimate.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{coef_result =}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\DecValTok{5}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\KeywordTok{head}\NormalTok{(coef_result)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 4.915519 3.474409 4.713782 1.080500 6.726102 6.777850
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{mean}\NormalTok{(coef_result)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 5.042185
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sd}\NormalTok{(coef_result)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 1.964986
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{quantile}\NormalTok{(coef_result, }\KeywordTok{c}\NormalTok{(.}\DecValTok{025}\NormalTok{,.}\DecValTok{975}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+    2.5%    97.5% 
+1.211659 8.798060 
+\end{verbatim}
+
+You will end up specifying the nature of that distribution depending on
+the model and goals of your situation, but the concept will be no
+different.
+
+\section{Prior}\label{prior}
+
+For the Bayesian approach we must choose a {prior distribution}
+representing our initial beliefs about the estimate. This is
+traditionally where some specifically have difficulty with Bayesian
+estimation, and newcomers are most wary. You will have to make choices
+here, but they are no different than the sort of choices you've always
+made in statistical modeling. Perhaps you let the program do it for you
+(generally a bad idea), or put little thought into it (also a bad idea),
+but such choices were always there. Examples include which variables go
+into the model, the nature of the likelihood (e.g.~normal vs.~Poisson),
+whether to include interactions, etc. You're \emph{always} making these
+choices in statistical modeling. \emph{Always}. If it didn't bother you
+before it needn't now.
+
+The prior's settings are typically based on modeling concerns. As an
+example, the prior for regression coefficients could be set to uniform
+with some common sense boundaries. This would more or less defeat the
+purpose of the Bayesian approach, but it represents a situation in which
+we are completely ignorant of the situation. In fact, doing so would
+produce the results from standard likelihood regression approaches, and
+thus you can think of your familiar approach as a Bayesian one with
+uninformed priors. However, more common practice usually sets the prior
+for a regression coefficient to be normal, with mean at zero and with a
+relatively large variance. The large variance reflects our ignorance,
+but using the normal results in nicer estimation properties. The really
+nice thing is however, that we could have set the mean to that seen for
+the same or similar situations in prior research. In this case we can
+build upon the work that came before.
+
+Setting aside the fact that such `subjectivity' is an inherent part of
+the scientific process, and that ignoring prior information, if
+explicitly available from previous research, would be blatantly
+unscientific, the main point to make here is that this choice is not an
+\emph{arbitrary} one. There are many distributions we might work with,
+but some will be better for us than others. And we can always test
+different priors to see how they might affect results (if at
+all)\footnote{Such testing is referred to as sensitivity analysis.}.
+
+\section{Likelihood}\label{likelihood}
+
+I won't say too much about the {likelihood function} here. I have a
+refresher in the appendix of the
+\href{http://m-clark.github.io/docs/IntroBayes.html}{Bayesian Basics
+doc}. In any case here is a brief example. We'll create a likelihood
+function for a standard regression setting, and compare results for two
+estimation situations.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# likelihood function}
+\NormalTok{reg_ll =}\StringTok{ }\NormalTok{function(X, y, beta, sigma)\{}
+  \KeywordTok{sum}\NormalTok{(}\KeywordTok{dnorm}\NormalTok{(y, }\DataTypeTok{mean=}\NormalTok{X%*%beta, }\DataTypeTok{sd=}\NormalTok{sigma, }\DataTypeTok{log=}\NormalTok{T))}
+\NormalTok{\}}
+
+\CommentTok{# true values}
+\NormalTok{true_beta =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{5}\NormalTok{)}
+\NormalTok{true_sigma =}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# comparison values}
+\NormalTok{other_beta =}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{3}\NormalTok{)}
+\NormalTok{other_sigma =}\StringTok{ }\DecValTok{2}
+
+\CommentTok{# sample size}
+\NormalTok{N =}\StringTok{ }\DecValTok{1000}
+
+\CommentTok{# data generation}
+\NormalTok{X =}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{runif}\NormalTok{(N))}
+\NormalTok{y =}\StringTok{ }\NormalTok{X %*%}\StringTok{ }\NormalTok{true_beta +}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(N, }\DataTypeTok{sd=}\NormalTok{true_sigma)}
+
+\CommentTok{# calculate likelihooods}
+\KeywordTok{reg_ll}\NormalTok{(X, y, }\DataTypeTok{beta=}\NormalTok{true_beta, }\DataTypeTok{sigma=}\NormalTok{true_sigma)    }\CommentTok{# more likely}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] -1401.478
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{reg_ll}\NormalTok{(X, y, }\DataTypeTok{beta=}\NormalTok{other_beta, }\DataTypeTok{sigma=}\NormalTok{other_sigma)  }\CommentTok{# less likely}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] -2905.726
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{logLik}\NormalTok{(}\KeywordTok{lm}\NormalTok{(y~., }\DataTypeTok{data=}\KeywordTok{data.frame}\NormalTok{(X[,-}\DecValTok{1}\NormalTok{])))          }\CommentTok{# actual log likelihood}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+'log Lik.' -1400.673 (df=3)
+\end{verbatim}
+
+The above demonstrates a couple things. The likelihood tells us the
+relative number of ways the data could occur given the parameter
+estimates. For a standard linear model where the likelihood is based on
+a normal distribution, we require estimates for the coefficients and the
+variance/standard deviation. In the standard maximum likelihood (ML)
+approach commonly used in statistical analysis, we use an iterative
+process to end up with estimates of the parameters that maximize the
+data likelihood. With more data, and a lot of other considerations going
+in our favor, we end up closer to the true values\footnote{Assuming such
+  a thing exists.}. A key difference from standard ML methods and the
+Bayesian approach is that the former assumes a fixed parameter, while
+the Bayesian approach assumes the parameter is \emph{random}.
+
+\section{Posterior}\label{posterior}
+
+The {posterior} distribution is a weighted combination of the prior and
+the likelihood, and is proportional to their product. Assuming some
+\(\theta\) is the parameter of interest:
+
+\[ p(\theta|Data) \propto p(Data|\theta) \cdot p(\theta) \]
+\[ \;\;\mathrm{posterior} \;\propto \mathrm{likelihood} \;\!\cdot \mathrm{prior} \]
+With more data, i.e.~evidence, the weight shifts ever more to the
+likelihood, ultimately rendering the prior inconsequential. Let's now
+\href{http://micl.shinyapps.io/prior2post/}{see this in action}.
+
+\section{P-values}\label{p-values}
+
+One of the many nice things about the Bayesian approach regards the
+probabilities and intervals we obtain, specifically their
+interpretation. For some of you still new to statistical analysis in
+general, this may be the interpretation you were already using, though
+incorrectly.
+
+As an example, the p-value from standard {null hypothesis testing} goes
+something like the following:
+
+\begin{quote}
+\emph{If the null hypothesis is true}, the probability of seeing a
+result like this or more extreme is P.
+\end{quote}
+
+Contrast this with the following:
+
+\begin{quote}
+The probability of this result being different from zero is P.
+\end{quote}
+
+Which is more straightforward? Now consider the interval estimates:
+
+\begin{quote}
+If I repeat this study precisely an infinite number of times, and I
+calculate a P\% interval each time, then P\% of those intervals will
+contain the true parameter.
+\end{quote}
+
+Or:
+
+\begin{quote}
+P is the probability the parameter falls in \emph{this} interval.
+\end{quote}
+
+One of these reflects the notions and language we use in everyday
+speech, the other hasn't been understood very well by most people
+practicing science. While oftentimes, and especially for simpler models,
+a Bayesian interval will not be much different than the traditional one,
+at least it will be something you could describe to the average Joe on
+the street. In addition, you can generate distributions, and thus
+estimates with corresponding intervals, for anything you can calculate
+based on the model. Such statistics are a natural by-product of the
+approach, and make it easier to explore your data further.
+
+\chapter{Stan}\label{stan}
+
+Stan is a modeling language for Bayesian data analysis\footnote{Stan 1.0
+  was released in 2012.}. The actual work is done in C++, but the Stan
+language specifies the necessary aspects of the model. It uses a variety
+of inference procedures, including standard optimization techniques
+commonly found elsewhere, but the primary Bayesian-specific approach
+regards Hamiltonian Monte Carlo\footnote{Originally called \emph{Hybrid}
+  Monte Carlo, such a name is a bit too vague for most.}. There are
+actually a number of ways in which Bayesian estimation/sampling can take
+place and this is one that has, like the others, advantages in some
+areas, and disadvantages in others\footnote{For many types of problems,
+  relative to Gibbs and some other samplers, HMC will be more efficient
+  in the sense it will take fewer iterations to describe the posterior
+  distribution.}. It is however applicable in a wide variety of problems
+and will often do better than other approaches.
+
+To use Stan directly, one just needs to know their model intimately,
+which should be the case if you're going to spend so much time in
+collecting, processing and analyzing data in the first place. I
+personally find the \emph{style} of the Stan language clear, and it
+might be seen as a combination of C++ and R programming styles, though
+mostly the latter. The following will take you through the components of
+the Stan language.
+
+\section{Installing Stan}\label{installing-stan}
+
+To get started with Stan (in R), one needs to install the {rstan}
+package. While this will proceed as with any other package, additional
+steps are required. First, you will need a C++ compiler, and this
+process will be different depending on your operating system. It won't
+take much, there's a chance you already have one even, but steps are
+clearly defined on the
+\href{https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started}{RStan
+wiki}. After going through that process, you may then install the
+{rstan} package and dependencies. You'll be ready to go at that point.
+
+\section{The Way of Stan/RStan}\label{the-way-of-stanrstan}
+
+The basic workflow you'll engage in to run a Stan program within R is as
+follows:
+
+\begin{itemize}
+\tightlist
+\item
+  Write the Stan program
+\item
+  Create a data list
+\item
+  Run a debug model to check compilation etc.
+\item
+  Run the full model
+\item
+  Summarize the model
+\item
+  Check diagnostics, including posterior predictive inspection
+\end{itemize}
+
+In this part we'll consider the elements of the Stan program.
+
+\section{Elements of a Stan Program}\label{elements-of-a-stan-program}
+
+The following shows the primary parts of a Stan program for a standard
+linear model. We'll go through each component in turn.
+
+\begin{verbatim}
+data {                      // Data block
+  int<lower=1> N;           // Sample size
+  int<lower=1> K;           // Dimension of model matrix
+  matrix[N, K] X;           // Model Matrix
+  vector[N] y;              // Target variable
+}
+
+transformed data {          // Transformed data block.
+} 
+
+parameters {                // Parameters block
+  vector[K] beta;           // Coefficient vector
+  real<lower=0> sigma;      // Error scale
+}
+
+transformed parameters {    // Transformed parameters block.
+} 
+
+model {                     // Model block
+  vector[N] mu;
+  mu = X * beta;            // Creation of linear predictor
+  
+  // priors
+  beta ~ normal(0, 10);
+  sigma ~ cauchy(0, 5);     
+  
+  // likelihood
+  y ~ normal(mu, sigma);
+}
+
+generated quantities {      // Generated quantities block. 
+}
+\end{verbatim}
+
+For a reference, the following is from the Stan manual, variables of
+interest and the associated blocks where they would be declared:
+
+Variable Kind
+
+Declaration Block
+
+modeled, unmodeled data
+
+data, transformed data
+
+modeled parameters, missing data
+
+parameters, transformed parameters
+
+unmodeled parameters
+
+data, transformed data
+
+generated quantities
+
+transformed data, transformed parameters, generated quantities
+
+loop indices
+
+loop statement
+
+\subsection{Data}\label{data}
+
+\begin{verbatim}
+data {                      // Data block
+  int<lower=1> N;           // Sample size
+  int<lower=1> K;           // Dimension of model matrix
+  matrix[N, K] X;           // Model Matrix
+  vector[N] y;              // Target variable
+}
+\end{verbatim}
+
+The first section is the {data} block, where we tell Stan the data it
+should be expecting from the data list. It is useful to put in bounds as
+a check on the data input, and that is what is being done between the
+\textless{} \textgreater{} (e.g.~we should at least have a sample size
+of 1). The first two variables declared are N and K, both as integers.
+Next the code declares the model matrix and target vector respectively.
+As you'll note here and for the next blocks, we declare the type and
+dimensions of the variable and then its name. In Stan, everything
+declared in one block is available to subsequent blocks, but those
+declared in a block may not be used in earlier blocks. Even within a
+block, anything declared, such as N and K, can then be used
+subsequently, as we did to specify dimensions.
+
+\subsection{Transformed Data}\label{transformed-data}
+
+\begin{verbatim}
+transformed data {          // Transformed data block
+  vector[N] logX;
+  
+  logX = log(X);
+} 
+\end{verbatim}
+
+The {transformed data} block is where you could do such things as log or
+center variables and similar, i.e.~you can create new data based on the
+input data or just in general. If you are using R though, it would
+almost always be easier to do those things in R first and just include
+them in the data list. You can also declare any unmodeled parameters
+here.
+
+\subsection{Parameters}\label{parameters}
+
+\begin{verbatim}
+parameters {                // Parameters block
+  vector[K] beta;           // Coefficient vector
+  real<lower=0> sigma;      // Error scale
+}
+\end{verbatim}
+
+The primary parameters of interest that are to be estimated go in the
+{parameters } block. As with the data block you can only declare these
+variables, you cannot make any assignments. Here we note the \(\beta\)
+and \(\sigma\) to be estimated, with a lower bound of zero on the
+latter. In practice you might prefer to split out the intercept or other
+coefficients to be modeled separately if they are on notably different
+scales.
+
+\subsection{Transformed Parameters}\label{transformed-parameters}
+
+\begin{verbatim}
+transformed parameters {    // Transformed parameters block
+  real newpar;
+  
+  newpar = exp(oldpar);
+} 
+\end{verbatim}
+
+The {transformed parameters} block is where optional parameters of
+interest might be included. What might go here is fairly open, but for
+efficiency's sake you will typically want to put things only of specific
+interest that are dependent on the parameters block. These are evaluated
+along with the parameters, so if they are not of special interest you
+can generate them in the model or generated quantities block to save
+time and space.
+
+\subsection{Model}\label{model}
+
+\begin{verbatim}
+model {                     // Model block
+  vector[N] mu;
+  mu = X * beta;            // Creation of linear predictor
+  
+  // priors
+  beta ~ normal(0, 10);
+  sigma ~ cauchy(0, 5);     
+  
+  // likelihood
+  y ~ normal(mu, sigma);
+}
+\end{verbatim}
+
+The {model} block is where your priors and likelihood are specified,
+along with the declaration of any variables necessary. As an example,
+the linear predictor is included here, as it will go towards the
+likelihood\marginnote{The position within the model block isn't crucial. I tend to like to do all the variable declarations at the start, but others might prefer to have them under the likelihood heading at the point they are actually used.}.
+Note that we could have instead put the linear predictor in the
+transformed parameters section, but this would slow down the process,
+and again, we're not so interested in those specific values.
+
+\subsection{Generated Quantities}\label{generated-quantities}
+
+\begin{verbatim}
+generated quantities {
+  vector[N] yhat;                // linear predictor
+  real<lower=0> rss;             // residual sum of squares
+  real<lower=0> totalss;         // total SS              
+  real Rsq;                      // Rsq
+  
+  yhat = X * beta;
+  rss = dot_self(y-yhat);
+  totalss = dot_self(y-mean(y));
+  Rsq = 1 - rss/totalss;
+}
+\end{verbatim}
+
+The {generated quantities} block is a fantastical place where anything
+in your noggin can spring forth to life. \emph{Anything} that you can
+think of that can be calculated based on the model results can be
+assessed here. What's more, it will have a distribution just like
+everything else. The above calculates the typical R\textsuperscript{2}
+as an example. Because of the priors, it is already `adjusted', but we
+also have an interval estimate for it.
+
+As another example, to get a sense of how well you're capturing the
+tails of the distribution for \texttt{y}, you could start by calculating
+your minimum mean prediction, and see how often it falls below the true
+minimum. From the Bayesian approach we could not only get an interval of
+the minimum prediction, we'd get the probability for how often it is
+above or below the true minimum, which is simply the proportion of
+samples for which this takes place. Ideally we'd like a symmetric
+distribution for the estimated minimum around the true minimum with no
+general tendency to be above or below. If it was a very high probability
+of being lower than the true minimum, perhaps the model over compensates
+for the lower tail of the distribution. If it was very low, it would
+perhaps signal we are not capturing lower extremes very well. We could
+do this for the maximum or any other value of interest.
+
+\section{Using Stan}\label{using-stan}
+
+Now that you have a Stan program in place, you're ready to proceed.
+
+\chapter{R}\label{r}
+
+R has many tools for Bayesian analysis, and possessed these before Stan
+came around. Among the more prominent were those that allowed the use of
+BUGS (e.g. {r2OpenBugs}), one of its dialects JAGS ({rjags}), and
+packages like {coda} and {MCMCpack} that allowed for customized
+approaches, further extensions or easier implementation. Other packages
+might regard a specific type or family of models (e.g. {bayesm}), but
+otherwise be mostly R-like in specifying the model (e.g. {MCMCglmm} for
+mixed models).
+
+Now it is as easy to conduct standard and more complex models using Stan
+while staying within the usual framework of R-style modeling. You don't
+even have to write Stan code! I'll later note a couple relevant packages
+that enable this.
+
+\section{rstan}\label{rstan}
+
+The {rstan} package is the workhorse, and the other packages mentioned
+in following rely on it or assume similarities to it. In general though,
+{rstan} is what you will use when you write Stan code directly. The
+following demonstrates how.
+
+\subsection{Data list}\label{data-list}
+
+First you'll need to create a list of objects we'll call the {data
+list}. It is a list of \emph{named} objects that Stan will look to match
+to the things you noted in the \texttt{data\{\}} section of your Stan
+code. In our example, our data statement has four components- \texttt{N}
+\texttt{K} \texttt{X} and \texttt{y}. As such, we might create the
+following data list.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dataList =}\StringTok{  }\KeywordTok{list}\NormalTok{(}\DataTypeTok{X=}\NormalTok{mymatrix, }\DataTypeTok{y=}\NormalTok{mytarget, }\DataTypeTok{N=}\DecValTok{1000}\NormalTok{, }\DataTypeTok{K=}\KeywordTok{ncol}\NormalTok{(mymatrix))}
+\end{Highlighting}
+\end{Shaded}
+
+You could add fixed parameters and similar if your Stan code relies on
+them somewhere, but at this point you're ready to proceed. Here is a
+model using RStan.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(rstan)}
+
+\NormalTok{modResults =}\StringTok{ }\KeywordTok{stan}\NormalTok{(mystancode, }\DataTypeTok{data=}\NormalTok{dataList, }\DataTypeTok{iter=}\DecValTok{2000}\NormalTok{, }\DataTypeTok{warmup=}\DecValTok{1000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The Stan code is specified as noted previously, and can be a string in
+the R environment, or a separate text file\footnote{I would maybe
+  suggest using strings with simple models as you initially learn
+  Stan/RStan, but a separate file is preferred. RStudio has syntax
+  highlighting and other benefits for *.stan files.}.
+
+\subsection{Debug model}\label{debug-model}
+
+The debug model is just like any other except you'll only want a couple
+iterations and for one chain.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model_debug =}\StringTok{ }\KeywordTok{stan}\NormalTok{(mystancode, }\DataTypeTok{data=}\NormalTok{dataList, }\DataTypeTok{iter=}\DecValTok{10}\NormalTok{, }\DataTypeTok{chains=}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+This will allow you to make sure the Stan code compiles first and
+foremost, and secondly, that there aren't errors in the program that
+keep parameters from being estimated (thus resulting in no posterior
+samples). For a compile check, you hardly need any iterations. However,
+if you set the iterations a little higher, you may also discover
+potential difficulties in the estimation process that might suggest code
+issues remain.
+
+\subsection{Full model}\label{full-model}
+
+If all is well with the previous, you can now proceed with the main
+model. Setting the argument \texttt{fit\ =\ debugModel} will save you
+the time spent compiling. It is a notable time saver to run the chains
+in parallel by setting \texttt{cores\ =\ ncore}, where \texttt{ncore} is
+some value representing the number of cores on your machine you want to
+use.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mystanmodel =}\StringTok{ }\KeywordTok{stan}\NormalTok{(mystancode, }\DataTypeTok{data=}\NormalTok{dataList, }\DataTypeTok{fit =} \NormalTok{model_debug, }
+                   \DataTypeTok{iter=}\DecValTok{2000}\NormalTok{, }\DataTypeTok{warmup=}\DecValTok{1000}\NormalTok{, }\DataTypeTok{thin=}\DecValTok{1}\NormalTok{, }\DataTypeTok{chains=}\DecValTok{4}\NormalTok{, }\DataTypeTok{cores=}\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Once you are satisfied that the model runs well, you really only need
+one chain if you rerun it in the future.
+
+\subsection{Model summary}\label{model-summary}
+
+The typical model summary provides parameter estimates, standard errors,
+interval estimates and two diagnostics- effective sample size, the
+\(\hat{R}\) diagnostic.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(mystanmodel, }\DataTypeTok{pars=}\KeywordTok{c}\NormalTok{(}\StringTok{'Intercept'}\NormalTok{, }\StringTok{'beta_1'}\NormalTok{, }\StringTok{'sigma'}\NormalTok{, }\StringTok{'Rsq'}\NormalTok{), }\DataTypeTok{probs =} \KeywordTok{c}\NormalTok{(.}\DecValTok{05}\NormalTok{,.}\DecValTok{95}\NormalTok{), }\DataTypeTok{digits=}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Inference for Stan model: 34b5bc624f3e17e6f88e764a5bc0c898.
+4 chains, each with iter=2000; warmup=1000; thin=1; 
+post-warmup draws per chain=1000, total post-warmup draws=4000.
+
+           mean se_mean    sd     5%   95% n_eff  Rhat
+Intercept 1.267   0.002 0.085  1.126 1.403  1396 1.004
+beta_1    0.081   0.004 0.148 -0.157 0.331  1606 1.003
+sigma     0.969   0.001 0.030  0.922 1.019  2313 0.999
+Rsq       0.646   0.000 0.001  0.644 0.648  1816 1.002
+
+Samples were drawn using NUTS(diag_e) at Wed Nov 09 15:32:08 2016.
+For each parameter, n_eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor on split chains (at 
+convergence, Rhat=1).
+\end{verbatim}
+
+\subsection{Diagnostics and beyond}\label{diagnostics-and-beyond}
+
+Typical Bayesian diagnostic tools like trace plots, density plots etc.
+are available. Part of the printed output contains the two just
+mentioned. In addition {rstan} comes with model comparison functions
+like {WAIC} and {loo}. The best part is the {launch\_shiny} function,
+which actually makes this part of the analysis a lot more fun. Below is
+a graphical depiction of what would open in your browser when you use
+the function.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(shinystan)}
+\KeywordTok{launch_shiny}\NormalTok{(mystanmodel)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{rstanarm}\label{rstanarm}
+
+The {rstanarm} is a package from the Stan developers that allows you to
+specify models in the standard R
+format\marginnote{The 'arm' in rstanarm is for 'applied regression and multilevel modeling', which is *NOT* the title of Gelman's book no matter what he says.}.
+While this is very limiting, it definitely covers a lot of the usual
+statistical ground. As such, it enables you to be a Bayesian for any of
+the very common glm settings, including mixed and additive models.
+
+Key modeling functions include:
+
+\begin{itemize}
+\tightlist
+\item
+  {stan\_lm}: as with lm
+\item
+  {stan\_glm}: as with glm
+\item
+  {stan\_glmer}: generalized linear mixed models
+\item
+  {stan\_gamm4}: generalized additive mixed models
+\item
+  {stan\_polr}: ordinal regression models
+\end{itemize}
+
+Other functions allow the ability to change priors, enable posterior
+predictive checking etc. The following shows example code.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(rstanarm)}
+
+\NormalTok{rstanarm_results =}\StringTok{ }\KeywordTok{stan_glm}\NormalTok{(y ~}\StringTok{ }\NormalTok{x, }\DataTypeTok{data=}\NormalTok{mydataframe, }\DataTypeTok{iter=}\DecValTok{2000}\NormalTok{, }\DataTypeTok{warmup=}\DecValTok{1000}\NormalTok{, }\DataTypeTok{cores=}\DecValTok{4}\NormalTok{)}
+\KeywordTok{summary}\NormalTok{(rstanarm_results, }\DataTypeTok{probs=}\KeywordTok{c}\NormalTok{(.}\DecValTok{025}\NormalTok{, .}\DecValTok{975}\NormalTok{), }\DataTypeTok{digits=}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+stan_glm(formula = y ~ x, data = mydataframe, iter = 2000, warmup = 1000)
+
+Family: gaussian (identity)
+Algorithm: sampling
+Posterior sample size: 4000
+Observations: 500
+
+Estimates:
+                mean     sd       2.5%     97.5% 
+(Intercept)      1.272    0.086    1.101    1.441
+x                0.071    0.148   -0.216    0.364
+sigma            0.969    0.030    0.912    1.030
+mean_PPD         1.309    0.060    1.189    1.426
+log-posterior -700.510    1.131 -703.489 -699.217
+
+Diagnostics:
+              mcse  Rhat  n_eff
+(Intercept)   0.001 1.000 3298 
+x             0.003 0.999 3364 
+sigma         0.001 0.999 3428 
+mean_PPD      0.001 1.000 3553 
+log-posterior 0.022 1.001 2598 
+
+For each parameter, mcse is Monte Carlo standard error, n_eff is a crude measure of effective sample size, and Rhat is the potential scale reduction factor on split chains (at convergence Rhat=1).
+\end{verbatim}
+
+The resulting model object can essentially be used just like the
+{lm}/{glm} functions in base R. There are {summary}, {predict},
+{fitted}, {coef} etc. functions available to use just like with standard
+model objects.
+
+\section{brms}\label{brms}
+
+I have watched with much enjoyment the development of the {brms} package
+from nearly its inception. Due to the continued development of
+{rstanarm}, it's role is becoming more niche perhaps, but I still
+believe it to be both useful and powerful. It allows for many types of
+models, custom Stan functions, and many distributions (including
+truncated versions, ordinal variables, zero-inflated, etc.). The main
+developer is ridiculously responsive to requests, so extensions are
+regularly implemented. In short, for standard models you can use
+{rstanarm}, while for variations of those, more flexible manipulation of
+priors, or more complex models, you can use {brms}.
+
+The following shows an example of the additional capabilities provided
+by the {brm} function, which unlike rstanarm, is the only function you
+need for modeling with this package. The following demonstrates use of a
+truncated distribution, an additive model with random effect, use of a
+different family function, specification of prior distribution for the
+fixed effect coefficients, specification of correlated residual
+structure, optional estimation algorithm, and use of custom Stan
+functions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(brms)}
+
+\NormalTok{modResults =}\StringTok{ }\KeywordTok{brm}\NormalTok{(y |}\StringTok{ }\KeywordTok{trunc}\NormalTok{(}\DataTypeTok{lb =} \DecValTok{0}\NormalTok{, }\DataTypeTok{ub =} \DecValTok{100}\NormalTok{) ~}\StringTok{ }\KeywordTok{s}\NormalTok{(x) +}\StringTok{ }\NormalTok{(}\DecValTok{1}\NormalTok{|id), }\DataTypeTok{family=}\NormalTok{student, }\DataTypeTok{data=}\NormalTok{dataList, }
+                 \DataTypeTok{prior =} \KeywordTok{set_prior}\NormalTok{(}\StringTok{'horseshoe(3)'}\NormalTok{, }\DataTypeTok{class=}\StringTok{'b'}\NormalTok{),}
+                 \DataTypeTok{autocor =} \KeywordTok{cor_ar}\NormalTok{(~patient, }\DataTypeTok{p =} \DecValTok{1}\NormalTok{),}
+                 \DataTypeTok{algorithm =} \StringTok{'meanfield'}\NormalTok{,}
+                 \DataTypeTok{stan_funs =} \NormalTok{stdized,}
+                 \DataTypeTok{iter=}\DecValTok{2000}\NormalTok{, }\DataTypeTok{warmup=}\DecValTok{1000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+The {brms} package also has a lot of the same functionality for post
+model inspection.
+
+\section{rethinking}\label{rethinking}
+
+The {rethinking} package accompanies the text, Statistical Rethinking by
+Richard McElreath. This is a great resource for learning Bayesian data
+analysis while using Stan under the hood. You can do more with the other
+packages mentioned, but if you can also run your model here, you might
+get even more to play with. Like {rstanarm} and {brms}, you might be
+able to use it to produce starter Stan code as well, that you can then
+manipulate and use via {rstan}. Again, this is a very useful tool to
+learn Bayesian analysis in general, especially if you have the text.
+
+\section{Summary}\label{summary}
+
+To recap, we can summarize the roles of these packages as follows
+(ordered from easiest to more flexible):
+
+\begin{itemize}
+\item
+  {rethinking}: Good resource to introduce yourself to Bayesian
+  analysis.
+\item
+  {rstanarm}: All you need to start on your path to using Bayesian
+  techniques. Keeps you in more familiar modeling territory so you can
+  focus on learning the new stuff. Supports up through mixed models,
+  GAMs, and ordinal models.
+\item
+  {brms}: Take your model notably further and still not have to write
+  raw stan code. Supports a very wide range of models and still without
+  raw Stan code.
+\item
+  {rstan}: Here you write your Stan code regarding whatever model your
+  heart desires, then let rstan do the rest.
+\item
+  raw R or other: Some still insist on writing their own sampler. While
+  great for learning purposes, this is mostly a good way to produce
+  buggier code, have less model exploration capability, all while being
+  a lot less efficient (and very slow if in raw R). Maybe you'll end up
+  here, but you should exhaust your other possibilities first.
+\end{itemize}
+
+\chapter{Extensions}\label{extensions}
+
+\section{R}\label{r-1}
+
+Some R extensions for Stan include the following:
+
+\begin{itemize}
+\tightlist
+\item
+  {shiny\_stan}: for interactive diagnostics
+\end{itemize}
+
+\marginnote{Screen shot of shiny_stan}
+
+\begin{itemize}
+\item
+  {loo}: Provides approximate leave-one-out cross-validation statistics
+  for model comparison.
+\item
+  {bayesplot}: diagnostic plots and other useful tools, though notable
+  overlap with shiny\_stan
+\end{itemize}
+
+\marginnote{Example plots from bayesplot}
+
+\begin{center}\includegraphics{Bayesian_files/figure-latex/bayesplotEx-1} \end{center}
+
+\begin{center}\includegraphics{Bayesian_files/figure-latex/nuts-1} \end{center}
+
+\section{Stan functions}\label{stan-functions}
+
+One can write their own Stan functions just like with R. Just start your
+model code with a \texttt{functions\ \{\}} block. Perhaps you will need
+something to make later code a little more efficient, or a specific type
+of calculation. You can create a custom function to suit your needs. An
+example function below standardizes a variable to have a mean of 0 and
+standard deviation of 1, or just center it if scale=0.
+
+\begin{verbatim}
+functions {
+  vector stdized(int N, vector x, int scale) {
+     vector[N] x_sc;
+
+     x_sc = scale ? x-mean(x) : (x-mean(x))/sd(x);
+     
+     return x_sc;
+  }
+}
+\end{verbatim}
+
+Presumably this capability will result in custom modules that are
+essentially the equivalent of R packages for Stan. However, at this time
+there doesn't look to be much in this regard.
+
+\section{Other frameworks}\label{other-frameworks}
+
+Stan goes beyond R, so if you find yourself using other tools but still
+need the power of Stan, fret not.
+
+\begin{itemize}
+\tightlist
+\item
+  {CmdStan}: shell, command-line terminal
+\item
+  {PyStan}: Python
+\item
+  {StataStan}: Stata
+\item
+  {MatlabStan}: MATLAB
+\item
+  {Stan.jl}: Julia
+\item
+  {MathematicaStan}: Mathematica
+\end{itemize}
+
+\chapter{Conclusion}\label{conclusion}
+
+Hopefully this talk and set of notes has given a quick overview of how
+easy it is to get started with Bayesian analysis using Stan and R. If
+you are just starting out with Bayesian analysis, you now have several
+resources at your disposal to jump right in, so you can spend more time
+on learning key concepts. If you came to this with your own priors,
+hopefully you'll have seen enough of the language and have a sense of
+how to proceed.
+
+Best of luck with your research!
+
+The following references will help you get going with Bayesian data
+analysis and Stan specifically.
+
+Gelman et al. \textbf{\emph{Bayesian Data Analysis}}. Gelman does not do
+the programming for Stan but has been one of the core members driving
+its development since day one. This highly cited resource is something
+you can continue to go back to time and again, and has some detailed
+examples and discussion of HMC. (advanced, but highly conceptual and
+practical at the same)
+
+McElreath, R. \textbf{\emph{Statistical Rethinking}}. A good modeling
+book in general, by one who has contributed a lot to helping others
+learn Stan. Comes with its own R package too. (intro to moderate)
+
+Kruschke, J. \textbf{\emph{Doing Bayesian Data Analysis}}. Very intro
+book, but might be good for those not too confident in statistics
+generally speaking. And who doesn't like puppies? Second edition has
+Stan examples. (intro)
+
+Me. \href{http://m-clark.github.io/docs/IntroBayes.html}{Bayesian
+Basics}. Concept-focused, and simple regression model to introduce Stan,
+with a little more by-hand stuff in the appendix. (intro)
+
+\url{http://mc-stan.org/} Main website
+
+\url{http://stan.fit/} The Stan Group
+
+More resources \href{http://mc-stan.org/documentation/}{here}
+
+\bibliography{packages,book}
+
+
+\end{document}

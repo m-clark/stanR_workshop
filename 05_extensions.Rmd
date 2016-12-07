@@ -1,0 +1,73 @@
+# Extensions
+
+## R
+
+Some R extensions for Stan include the following:
+
+```{r whichRstan, eval=F, echo=FALSE}
+packs = data.frame(installed.packages())
+packs %>% filter(Package %in% c('rstan', 'rstanarm', 'brms', 'loo', 'shinystan'))
+sapply(installed.packages()[,'Suggests'], strsplit, ',') %>% 
+  sapply(function(x) x %in% 'rstan') %>% 
+  sapply(any) %>% which
+sapply(installed.packages()[,'Suggests'], strsplit, ',') %>% 
+  sapply(grep, pattern='stan') %>% 
+  sapply(any) %>% which
+```
+
+
+- <span class="pack">shiny_stan</span>: for interactive diagnostics
+
+`r tufte::margin_note('Screen shot of shiny_stan')`
+<img src="img/shinystan.png" style="display:block; margin: 0 auto; width:75%">
+
+- <span class="pack">loo</span>: Provides approximate leave-one-out cross-validation statistics for model comparison.
+
+- <span class="pack">bayesplot</span>: diagnostic plots and other useful tools, though notable overlap with shiny_stan
+
+
+`r tufte::margin_note('Example plots from bayesplot')`
+```{r bayesplotEx, eval=T, echo=FALSE, dev='svg', fig.align='center', fig.width=4, fig.height=3, cache=TRUE}
+load('data/stanmod.RData')
+library(ggplot2); library(bayesplot)
+color_scheme_set("red")
+ppc_dens_overlay(y = rstanarm_results$y, 
+                 yrep = rstanarm::posterior_predict(rstanarm_results, draws = 50))
+# plotly::ggplotly()
+```
+
+
+```{r nuts, eval=T, echo=FALSE, dev='svg', fig.align='center', fig.width=4, fig.height=3, cache=TRUE}
+np <- nuts_params(rstanarm_results)
+mcmc_nuts_energy(np, merge_chains = T) + ggtitle("NUTS Energy Diagnostic")
+```
+
+
+## Stan functions
+
+One can write their own Stan functions just like with R.  Just start your model code with a `functions {}` block.  Perhaps you will need something to make later code a little more efficient, or a specific type of calculation.  You can create a custom function to suit your needs.  An example function below standardizes a variable to have a mean of 0 and standard deviation of 1, or just center it if scale=0.
+
+```{stan stanFunc, output.var="stanmodel", eval=F}
+functions {
+  vector stdized(int N, vector x, int scale) {
+     vector[N] x_sc;
+
+     x_sc = scale ? x-mean(x) : (x-mean(x))/sd(x);
+     
+     return x_sc;
+  }
+}
+```
+
+Presumably this capability will result in custom modules that are essentially the equivalent of R packages for Stan.  However, at this time there doesn't look to be much in this regard.
+
+## Other frameworks
+
+Stan goes beyond R, so if you find yourself using other tools but still need the power of Stan, fret not.
+
+- <span class="pack">CmdStan</span>: shell, command-line terminal
+- <span class="pack">PyStan</span>: Python
+- <span class="pack">StataStan</span>: Stata
+- <span class="pack">MatlabStan</span>: MATLAB
+- <span class="pack">Stan.jl</span>: Julia
+- <span class="pack">MathematicaStan</span>: Mathematica

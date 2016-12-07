@@ -1,0 +1,20 @@
+`r if (knitr:::is_html_output()) '# References {-}'`
+
+
+
+The following references will help you get going with Bayesian data analysis and Stan specifically.
+
+Gelman et al. ***Bayesian Data Analysis***.  Gelman does not do the programming for Stan but has been one of the core members driving its development since day one.  This highly cited resource is something you can continue to go back to time and again, and has some detailed examples and discussion of HMC. (advanced, but highly conceptual and practical at the same)
+
+McElreath, R. ***Statistical Rethinking***.  A good modeling book in general, by one who has contributed a lot to helping others learn Stan.  Comes with its own R package too. (intro to moderate)
+
+Kruschke, J. ***Doing Bayesian Data Analysis***. Very intro book, but might be good for those not too confident in statistics generally speaking. And who doesn't like puppies? Second edition has Stan examples. (intro)
+
+Me. [Bayesian Basics](http://m-clark.github.io/docs/IntroBayes.html). Concept-focused, and simple regression model to introduce Stan, with a little more by-hand stuff in the appendix. (intro)
+
+
+http://mc-stan.org/ Main website
+
+http://stan.fit/ The Stan Group
+
+More resources [here](http://mc-stan.org/documentation/)

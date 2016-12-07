@@ -1,0 +1,219 @@
+# R
+
+R has many tools for Bayesian analysis, and possessed these before Stan came around.  Among the more prominent were those that allowed the use of BUGS (e.g. <span class="pack">r2OpenBugs</span>), one of its dialects JAGS (<span class="pack">rjags</span>), and packages like <span class="pack">coda</span> and <span class="pack">MCMCpack</span> that allowed for customized approaches, further extensions or easier implementation.  Other packages might regard a specific type or family of models (e.g. <span class="pack">bayesm</span>), but otherwise be mostly R-like in specifying the model (e.g. <span class="pack">MCMCglmm</span> for mixed models).  
+
+Now it is as easy to conduct standard and more complex models using Stan while staying within the usual framework of R-style modeling.  You don't even have to write Stan code!  I'll later note a couple relevant packages that enable this.
+
+
+## rstan
+
+The <span class="pack">rstan</span> package is the workhorse, and the other packages mentioned in following rely on it or assume similarities to it.  In general though, <span class="pack">rstan</span> is what you will use when you write Stan code directly. The following demonstrates how.
+
+### Data list
+
+First you'll need to create a list of objects we'll call the <span class="emph">data list</span>. It is a list of *named* objects that Stan will look to match to the things you noted in the `data{}` section of your Stan code.  In our example, our data statement has four components- `N` `K` `X` and `y`.  As such, we might create the following data list.
+
+```{r dataList, eval=FALSE}
+dataList =  list(X=mymatrix, y=mytarget, N=1000, K=ncol(mymatrix))
+```
+
+You could add fixed parameters and similar if your Stan code relies on them somewhere, but at this point you're ready to proceed.  Here is a model using RStan.
+
+```{r rstan, eval=FALSE}
+library(rstan)
+
+modResults = stan(mystancode, data=dataList, iter=2000, warmup=1000)
+```
+
+The Stan code is specified as noted previously, and can be a string in the R environment, or a separate text file[^stringvsfile].  
+
+### Debug model
+
+The debug model is just like any other except you'll only want a couple iterations and for one chain.
+
+```{r rstanDebug, eval=FALSE}
+model_debug = stan(mystancode, data=dataList, iter=10, chains=1)
+```
+
+This will allow you to make sure the Stan code  compiles first and foremost, and secondly, that there aren't errors in the program that keep parameters from being estimated (thus resulting in no posterior samples).  For a compile check, you hardly need any iterations. However, if you set the iterations a little higher, you may also discover potential difficulties in the estimation process that might suggest code issues remain.
+
+
+### Full model
+
+If all is well with the previous, you can now proceed with the main model.  Setting the argument `fit = debugModel` will save you the time spent compiling. It is a notable time saver to run the chains in parallel by setting `cores = ncore`, where `ncore` is some value representing the number of cores on your machine you want to use.
+
+```{r rstanFullModel, eval=FALSE}
+mystanmodel = stan(mystancode, data=dataList, fit = model_debug, 
+                   iter=2000, warmup=1000, thin=1, chains=4, cores=4)
+```
+
+Once you are satisfied that the model runs well, you really only need one chain if you rerun it in the future.
+
+
+### Model summary
+
+The typical model summary provides parameter estimates, standard errors, interval estimates and two diagnostics- effective sample size, the $\hat{R}$ diagnostic.
+
+```{r runStan, eval=FALSE, echo=FALSE}
+stanmod = '
+functions {
+  vector stdized(int N, vector x, int scale) {
+     vector[N] x_sc;
+
+     x_sc = scale ? x-mean(x) : (x-mean(x))/sd(x);
+     
+     return x_sc;
+  }
+}
+
+data {                      // Data block
+  int<lower=1> N;           // Sample size
+  int<lower=1> K;           // Dimension of model matrix
+  matrix[N, K] X;           // Model Matrix
+  vector[N] y;              // Target variable
+}
+
+transformed data {          // Transformed data block.
+} 
+
+parameters {                // Parameters block
+  vector[K] beta;           // Coefficient vector
+  real<lower=0> sigma;      // Error scale
+}
+
+transformed parameters {    // Transformed parameters block.
+} 
+
+model {                     // Model block
+  vector[N] mu;
+  mu = X * beta;            // Creation of linear predictor
+  
+  // priors
+  beta ~ normal(0, 10);
+  sigma ~ cauchy(0, 5);     
+  
+  // likelihood
+  y ~ normal(mu, sigma);
+}
+
+generated quantities {         // Generated quantities block. 
+  vector[N] yhat;              // predicted y
+  real Rsq;                    // R-squared
+  real Intercept;
+  real beta_1;
+  vector[N] test;
+  
+  yhat = X * beta;
+  Rsq = 1 - dot_self(y-yhat)/dot_self(y-mean(y));
+  
+  Intercept = beta[1];
+  beta_1 = beta[2];
+  test  = stdized(N, y, 1);
+}'
+n = 500
+X = cbind(1, runif(n))
+y = c(X%*%c(1,.5)) + rnorm(n)
+dataList = list(X=X, y= y + rnorm(n), N=nrow(X), K=ncol(X))
+library(rstan)
+mystanmodel = stan(model_code = stanmod, data=dataList, cores=4)
+save(mystanmodel, dataList, file='data/stanmod.RData')
+```
+
+```{r, eval=T, echo=3}
+load('data/stanmod.RData')
+library(rstan)
+print(mystanmodel, pars=c('Intercept', 'beta_1', 'sigma', 'Rsq'), probs = c(.05,.95), digits=3)
+# broom::tidy(mystanmodel) %>% 
+#   filter(term %in% c('Intercept', 'beta_1', 'sigma', 'Rsq')) %>% 
+#   pander::pander()
+```
+
+
+
+### Diagnostics and beyond
+
+Typical Bayesian diagnostic tools like trace plots, density plots etc. are available.  Part of the printed output contains the two just mentioned. In addition <span class="pack">rstan</span> comes with model comparison functions like <span class="func">WAIC</span> and <span class="func">loo</span>.  The best part is the <span class="func">launch_shiny</span> function, which actually makes this part of the analysis a lot more fun.  Below is a graphical depiction of what would open in your browser when you use the function.
+
+```{r eval=FALSE}
+library(shinystan)
+launch_shiny(mystanmodel)
+```
+
+<img src="img/shinystan.png" style="display:block; margin: 0 auto;">
+
+## rstanarm
+
+The <span class="pack">rstanarm</span> is a package from the Stan developers that allows you to specify models in the standard R format`r margin_note("The 'arm' in rstanarm is for 'applied regression and multilevel modeling', which is *NOT* the title of Gelman's book no matter what he says.")`.  While this is very limiting, it definitely covers a lot of the usual statistical ground.  As such, it enables you to be a Bayesian for any of the very common glm settings, including mixed and additive models.
+
+Key modeling functions include:
+
+- <span class="func">stan_lm</span>: as with lm
+- <span class="func">stan_glm</span>: as with glm 
+- <span class="func">stan_glmer</span>: generalized linear mixed models
+- <span class="func">stan_gamm4</span>: generalized additive mixed models
+- <span class="func">stan_polr</span>: ordinal regression models
+
+Other functions allow the ability to change priors, enable posterior predictive checking etc. The following shows example code.
+
+
+```{r rstanarm, eval=FALSE, echo=3:6}
+load('data/stanmod.RData')
+mydataframe = data.frame(y = dataList$y, x = dataList$X[,2])
+library(rstanarm)
+
+rstanarm_results = stan_glm(y ~ x, data=mydataframe, iter=2000, warmup=1000, cores=4)
+summary(rstanarm_results, probs=c(.025, .975), digits=3)
+# save(mystanmodel, dataList, rstanarm_results, file='data/stanmod.RData')
+```
+
+```{r rstanarmDisplay, echo=F, R.options=list(width=120)}
+load('data/stanmod.RData')
+summary(rstanarm_results, probs=c(.025, .975), digits=3)
+```
+
+
+The resulting model object can essentially be used just like the <span class="func">lm</span>/<span class="func">glm</span> functions in base R.  There are <span class="func">summary</span>, <span class="func">predict</span>, <span class="func">fitted</span>, <span class="func">coef</span> etc. functions available to use just like with standard model objects.
+
+## brms
+
+I have watched with much enjoyment the development of the <span class="pack">brms</span> package from nearly its inception.  Due to the continued development of <span class="pack">rstanarm</span>, it's role is becoming more niche perhaps, but I still believe it to be both useful and powerful.  It allows for many types of models, custom Stan functions, and many distributions (including truncated versions, ordinal variables, zero-inflated, etc.).  The main developer is ridiculously responsive to requests, so extensions are regularly implemented.  In short, for standard models you can use <span class="pack">rstanarm</span>, while for variations of those, more flexible manipulation of priors, or more complex models, you can use <span class="pack">brms</span>.
+
+
+The following shows an example of the additional capabilities provided by the <span class="func">brm</span> function, which unlike rstanarm, is the only function you need for modeling with this package.  The following demonstrates use of a truncated distribution, an additive model with random effect, use of a different family function, specification of prior distribution for the fixed effect coefficients, specification of correlated residual structure, optional estimation algorithm, and use of custom Stan functions.
+
+```{r brms, eval=FALSE}
+library(brms)
+
+modResults = brm(y | trunc(lb = 0, ub = 100) ~ s(x) + (1|id), family=student, data=dataList, 
+                 prior = set_prior('horseshoe(3)', class='b'),
+                 autocor = cor_ar(~patient, p = 1),
+                 algorithm = 'meanfield',
+                 stan_funs = stdized,
+                 iter=2000, warmup=1000)
+```
+
+The <span class="pack">brms</span> package also has a lot of the same functionality for post model inspection.
+
+## rethinking
+
+The <span class="pack">rethinking</span> package accompanies the text, Statistical Rethinking by Richard McElreath.  This is a great resource for learning Bayesian data analysis while using Stan under the hood. You can do more with the other packages mentioned, but if you can also run your model here, you might get even more to play with.  Like <span class="pack">rstanarm</span> and <span class="pack">brms</span>, you might be able to use it to produce starter Stan code as well, that you can then manipulate and use via <span class="pack">rstan</span>.  Again, this is a very useful tool to learn Bayesian analysis in general, especially if you have the text.
+
+
+
+## Summary
+
+To recap, we can summarize the roles of these packages as follows (ordered from easiest to more flexible):
+
+- <span class="pack">rethinking</span>: Good resource to introduce yourself to Bayesian analysis.
+
+- <span class="pack">rstanarm</span>: All you need to start on your path to using Bayesian techniques. Keeps you in more familiar modeling territory so you can focus on learning the new stuff. Supports up through mixed models, GAMs, and ordinal models.
+
+- <span class="pack">brms</span>: Take your model notably further and still not have to write raw stan code.  Supports a very wide range of models and still without raw Stan code.
+
+- <span class="pack">rstan</span>: Here you write your Stan code regarding whatever model your heart desires, then let rstan do the rest.
+
+- raw R or other: Some still insist on writing their own sampler.  While great for learning purposes, this is mostly a good way to produce buggier code, have less model exploration capability, all while being a lot less efficient (and very slow if in raw R).  Maybe you'll end up here, but you should exhaust your other possibilities first.
+
+[^stringvsfile]: I would maybe suggest using strings with simple models as you initially learn Stan/RStan, but a separate file is preferred. RStudio has syntax highlighting and other benefits for *.stan files.
+
+[^trunc]: Or Bayesian modeling generally.

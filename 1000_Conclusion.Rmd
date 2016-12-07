@@ -1,0 +1,7 @@
+
+# Conclusion 
+
+
+Hopefully this talk and set of notes has given a quick overview of how easy it is to get started with Bayesian analysis using Stan and R.  If you are just starting out with Bayesian analysis, you now have several resources at your disposal to jump right in, so you can spend more time on learning key concepts.  If you came to this with your own priors, hopefully you'll have seen enough of the language and have a sense of how to proceed.  
+
+Best of luck with your research!

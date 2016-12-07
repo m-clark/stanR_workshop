@@ -1,0 +1,181 @@
+# Stan
+
+<img src="../img/stan_logo.png" style="display:block; margin: 0 auto; width:25%">
+
+Stan is a modeling language for Bayesian data analysis[^stan1].  The actual work is done in C++, but the Stan language specifies the necessary aspects of the model. It uses a variety of inference procedures, including standard optimization techniques commonly found elsewhere, but the primary Bayesian-specific approach regards Hamiltonian Monte Carlo[^HMC].  There are actually a number of ways in which Bayesian estimation/sampling can take place and this is one that has, like the others, advantages in some areas, and disadvantages in others[^HMC2]. It is however applicable in a wide variety of problems and will often do better than other approaches.
+
+To use Stan directly, one just needs to know their model intimately, which should be the case if you're going to spend so much time in collecting, processing and analyzing data in the first place.  I personally find the *style* of the Stan language clear, and it might be seen as a combination of C++ and R programming styles, though mostly the latter.  The following will take you through the components of the Stan language. 
+
+## Installing Stan
+
+To get started with Stan (in R), one needs to install the <span class="pack">rstan</span> package. While this will proceed as with any other package, additional steps are required.  First, you will need a C++ compiler, and this process will be different depending on your operating system.  It won't take much, there's a chance you already have one even, but steps are clearly defined on the [RStan wiki](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started).  After going through that process, you may then install the <span class="pack">rstan</span> package and dependencies.  You'll be ready to go at that point.
+
+## The Way of Stan/RStan
+
+The basic workflow you'll engage in to run a Stan program within R is as follows:
+
+- Write the Stan program
+- Create a data list
+- Run a debug model to check compilation etc.
+- Run the full model
+- Summarize the model
+- Check diagnostics, including posterior predictive inspection
+
+In this part we'll consider the elements of the Stan program.
+
+
+## Elements of a Stan Program
+
+The following shows the primary parts of a Stan program for a standard linear model.  We'll go through each component in turn.
+
+```{stan stanInit, output.var="stanmodel", eval=F}
+data {                      // Data block
+  int<lower=1> N;           // Sample size
+  int<lower=1> K;           // Dimension of model matrix
+  matrix[N, K] X;           // Model Matrix
+  vector[N] y;              // Target variable
+}
+
+transformed data {          // Transformed data block.
+} 
+
+parameters {                // Parameters block
+  vector[K] beta;           // Coefficient vector
+  real<lower=0> sigma;      // Error scale
+}
+
+transformed parameters {    // Transformed parameters block.
+} 
+
+model {                     // Model block
+  vector[N] mu;
+  mu = X * beta;            // Creation of linear predictor
+  
+  // priors
+  beta ~ normal(0, 10);
+  sigma ~ cauchy(0, 5);     
+  
+  // likelihood
+  y ~ normal(mu, sigma);
+}
+
+generated quantities {      // Generated quantities block. 
+}
+```
+
+For a reference, the following is from the Stan manual, variables of interest and the associated blocks where they would be declared: 
+
+```{r stanBlocks, results='asis', echo=FALSE}
+tab = data.frame(c('modeled, unmodeled data', 'modeled parameters, missing data', 'unmodeled parameters', 'generated quantities', 'loop indices'),
+                 c('data, transformed data', 'parameters, transformed parameters', 'data, transformed data', 'transformed data, transformed parameters, generated quantities','loop statement'))
+colnames(tab) = c('Variable Kind', 'Declaration Block')
+htmlTable::htmlTable(tab, rnames=F)
+```
+
+
+### Data
+
+```{stan stanData, output.var="stanmodel", eval=F}
+data {                      // Data block
+  int<lower=1> N;           // Sample size
+  int<lower=1> K;           // Dimension of model matrix
+  matrix[N, K] X;           // Model Matrix
+  vector[N] y;              // Target variable
+}
+```
+
+The first section is the <span class="emph">data</span> block, where we tell Stan the data it should be expecting from the data list.  It is useful to put in bounds as a check on the data input, and that is what is being done between the < > (e.g. we should at least have a sample size of 1).  The first two variables declared are N and K, both as integers.  Next the code declares the model matrix and target vector respectively. As you'll note here and for the next blocks, we declare the type and dimensions of the variable and then its name. In Stan, everything declared in one block is available to subsequent blocks, but those declared in a block may not be used in earlier blocks. Even within a block, anything declared, such as N and K, can then be used subsequently, as we did to specify dimensions.
+
+
+### Transformed Data
+
+```{stan stanTdata, output.var="shouldntbenecessary", eval=F}
+transformed data {          // Transformed data block
+  vector[N] logX;
+  
+  logX = log(X);
+} 
+```
+
+The <span class="emph">transformed data</span> block is where you could do such things as log or center variables and similar, i.e. you can create new data based on the input data or just in general.  If you are using R though, it would almost always be easier to do those things in R first and just include them in the data list.  You can also declare any unmodeled parameters here.
+
+
+### Parameters
+
+```{stan stanParams, output.var="shouldntbenecessary", eval=F}
+parameters {                // Parameters block
+  vector[K] beta;           // Coefficient vector
+  real<lower=0> sigma;      // Error scale
+}
+```
+
+
+The primary parameters of interest that are to be estimated go in the <span class="emph">parameters </span> block.  As with the data block you can only declare these variables, you cannot make any assignments.  Here we note the $\beta$ and $\sigma$ to be estimated, with a lower bound of zero on the latter. In practice you might prefer to split out the intercept or other coefficients to be modeled separately if they are on notably different scales.
+
+
+### Transformed Parameters
+
+```{stan stanTParams, output.var="shouldntbenecessary", eval=F}
+transformed parameters {    // Transformed parameters block
+  real newpar;
+  
+  newpar = exp(oldpar);
+} 
+```
+
+
+
+The <span class="emph">transformed parameters</span> block is where optional parameters of interest might be included.  What might go here is fairly open, but for efficiency's sake you will typically want to put things only of specific interest that are dependent on the parameters block.  These are evaluated along with the parameters, so if they are not of special interest you can generate them in the model or generated quantities block to save time and space.
+
+
+### Model
+```{stan stanModel, output.var="shouldntbenecessary", eval=F}
+model {                     // Model block
+  vector[N] mu;
+  mu = X * beta;            // Creation of linear predictor
+  
+  // priors
+  beta ~ normal(0, 10);
+  sigma ~ cauchy(0, 5);     
+  
+  // likelihood
+  y ~ normal(mu, sigma);
+}
+
+```
+
+
+The <span class="emph">model</span> block is where your priors and likelihood are specified, along with the declaration of any variables necessary.  As an example, the linear predictor is included here, as it will go towards the likelihood`r margin_note("The position within the model block isn't crucial. I tend to like to do all the variable declarations at the start, but others might prefer to have them under the likelihood heading at the point they are actually used.")`.  Note that we could have instead put the linear predictor in the transformed parameters section, but this would slow down the process, and again, we're not so interested in those specific values. 
+
+
+### Generated Quantities
+```{stan stanGenQuan, output.var="shouldntbenecessary", eval=F}
+generated quantities {
+  vector[N] yhat;                // linear predictor
+  real<lower=0> rss;             // residual sum of squares
+  real<lower=0> totalss;         // total SS              
+  real Rsq;                      // Rsq
+  
+  yhat = X * beta;
+  rss = dot_self(y-yhat);
+  totalss = dot_self(y-mean(y));
+  Rsq = 1 - rss/totalss;
+}
+```
+
+The <span class="emph">generated quantities</span> block is a fantastical place where anything in your noggin can spring forth to life. *Anything* that you can think of that can be calculated based on the model results can be assessed here.  What's more, it will have a distribution just like everything else.  The above calculates the typical R^2^ as an example.  Because of the priors, it is already 'adjusted', but we also have an interval estimate for it.  
+
+As another example, to get a sense of how well you're capturing the tails of the distribution for `y`, you could start by calculating your minimum mean prediction, and see how often it falls below the true minimum.  From the Bayesian approach we could not only get an interval of the minimum prediction, we'd get the probability for how often it is above or below the true minimum, which is simply the proportion of samples for which this takes place.  Ideally we'd like a symmetric distribution for the estimated minimum around the true minimum with no general tendency to be above or below.  If it was a very high probability of being lower than the true minimum, perhaps the model over compensates for the lower tail of the distribution.  If it was very low, it would perhaps signal we are not capturing lower extremes very well.  We could do this for the maximum or any other value of interest.
+
+
+## Using Stan
+
+Now that you have a Stan program in place, you're ready to proceed.  
+
+
+
+[^stan1]: Stan 1.0 was released in 2012.
+
+[^HMC]: Originally called *Hybrid* Monte Carlo, such a name is a bit too vague for most.
+
+[^HMC2]: For many types of problems, relative to Gibbs and some other samplers, HMC will be more efficient in the sense it will take fewer iterations to describe the posterior distribution.
