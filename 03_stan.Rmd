@@ -1,6 +1,6 @@
 # Stan
 
-<img src="../img/stan_logo.png" style="display:block; margin: 0 auto; width:25%">
+<img src="img/stan_logo.png" style="display:block; margin: 0 auto; width:25%">
 
 Stan is a modeling language for Bayesian data analysis[^stan1].  The actual work is done in C++, but the Stan language specifies the necessary aspects of the model. It uses a variety of inference procedures, including standard optimization techniques commonly found elsewhere, but the primary Bayesian-specific approach regards Hamiltonian Monte Carlo[^HMC].  There are actually a number of ways in which Bayesian estimation/sampling can take place and this is one that has, like the others, advantages in some areas, and disadvantages in others[^HMC2]. It is however applicable in a wide variety of problems and will often do better than other approaches.
 
